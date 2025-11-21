@@ -1,0 +1,21 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "worker-poc",
+	"compatibility_date": "2025-08-03",
+	"main": "./src/index.tsx",
+	"r2_buckets": [
+		{
+			"bucket_name": "email-storage",
+			"binding": "EMAIL_STORAGE",
+			"remote": true
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "email-inbox",
+			"database_id": "6f629fec-b572-4988-8685-48dcbea54f43",
+			"remote": true
+		}
+	]
+}
