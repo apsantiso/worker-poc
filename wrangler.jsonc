@@ -20,7 +20,6 @@
             "binding": "DB",
             "database_name": "email-inbox",
             "database_id": "e9133b5a-f172-4dae-b9ab-a4c4068c2e18",
-            "remote": true
         }
     ],
     "queues": {

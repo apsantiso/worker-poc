@@ -1,21 +1,62 @@
-```txt
+# Email Processing Worker - POC
+
+A Cloudflare Worker that receives inbound emails, stores them in R2, and processes them asynchronously using Queues and D1.
+
+## Architecture
+
+**Flow**: `Incoming Email → Webhook → R2 + D1 → Queue → Process → External Drive (TODO)`
+
+- **Webhook** (`/webhook/inbound`): Receives emails, parses with `postal-mime`, stores in R2, saves metadata to D1
+- **R2 Storage**: Temporary storage for raw email files (`emails/{date}/{id}.eml`)
+- **D1 Database**: Tracks status and metadata (from, to, subject, etc.)
+- **Queue**: Async processing with retries and dead letter queue
+- **Consumer** (`src/queue.ts`): Fetches email from R2, ready to send to external storage
+
+## Setup
+
+### 1. Install dependencies
+```bash
 npm install
-npm run dev
 ```
 
-```txt
-npm run deploy
+### 2. Create resources
+```bash
+# Create R2 bucket
+npx wrangler r2 bucket create email-storage
+
+# Create D1 database (save the database_id from output)
+npx wrangler d1 create email-inbox
+
+# Create queues
+npx wrangler queues create email-process-queue
+npx wrangler queues create email-dlq
 ```
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+### 3. Configure wrangler.jsonc
+Update `database_id` in `wrangler.jsonc` with the ID from step 2.
 
-```txt
-npm run cf-typegen
+### 4. Apply migrations
+```bash
+npx wrangler d1 migrations apply email-inbox
 ```
 
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
-
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
+### 5. Run locally
+```bash
+npx wrangler dev
 ```
+
+## Database Schema
+
+`email_inbox` table:
+- `id` - Message ID or UUID
+- `storage_key` - R2 path
+- `status` - pending/processing/completed/failed
+- `received_at` - Timestamp
+- `processed_at` - Timestamp
+- `metadata` - JSON (from, to, subject, date, attachments)
+
+## TODO
+
+- Add authentication before
+- Integrate with Internxt mail's API
+- We need to get the user credentials from somewhere to be able to ask for a drive signed URL. 
