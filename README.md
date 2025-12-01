@@ -57,6 +57,6 @@ npx wrangler dev
 
 ## TODO
 
-- Add authentication before
+- Add authentication (according to the third party email provider)
 - Integrate with Internxt mail's API
 - We need to get the user credentials from somewhere to be able to ask for a drive signed URL. 
