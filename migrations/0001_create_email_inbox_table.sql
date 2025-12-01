@@ -1,3 +1,6 @@
+-- Migration number: 0001 	 2025-01-27T00:00:00.000Z
+-- Create initial email_inbox table with status tracking
+
 CREATE TABLE email_inbox (
     id TEXT PRIMARY KEY,
     storage_key TEXT NOT NULL,
