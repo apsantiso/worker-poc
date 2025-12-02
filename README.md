@@ -40,7 +40,16 @@ Update `database_id` in `wrangler.jsonc` with the ID from step 2.
 npx wrangler d1 migrations apply email-inbox
 ```
 
-### 5. Run locally
+### 5. Modify DRIVE_CONFIG in queue.ts
+- API_URL: drive's bridge URL
+- BUCKET_ID: User's bucket ID in Drive
+- AUTH_TOKEN: The value we use as header when retrieving files from drive.
+
+```bash
+npx wrangler dev
+```
+
+### 6. Run locally
 ```bash
 npx wrangler dev
 ```
