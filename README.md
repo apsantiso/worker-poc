@@ -45,9 +45,6 @@ npx wrangler d1 migrations apply email-inbox
 - BUCKET_ID: User's bucket ID in Drive
 - AUTH_TOKEN: The value we use as header when retrieving files from drive.
 
-```bash
-npx wrangler dev
-```
 
 ### 6. Run locally
 ```bash
