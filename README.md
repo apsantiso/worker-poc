@@ -64,4 +64,5 @@ npx wrangler dev
 ## Fallbacks
 - What should we do when any of the external request fails in the consumer? Should we make sure they are idempotent? We should not add duplicated emails if one of them fails.
 - How are we going to monitor DLQ? Should we add a consumer to the DLQ or search for a notification system to monitor this?
+- How are we going to notify the senders if the target mail does not exist? There are some email servers (or providers) that returns a response according to the webhook, but if we choose any external provider that does not check the webhook before accepting the email, we should not be able to notify senders about email size (unless the server rejects it directly) or not existent mails.
 
