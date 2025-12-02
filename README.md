@@ -2,6 +2,22 @@
 
 A Cloudflare Worker that receives inbound emails, stores them in R2, and processes them asynchronously using Queues and D1.
 
+## How it works?
+1. Producer receives the email and parses all the required metadata from the raw email. This is just a worker exposed to the internet, so cloudflare can scale it when required.
+2. The entire raw mail is stored in R2 by the producer.
+3. Producer saves the email metadata and internal data (status, emailId, storageKey).
+4. Producer sends storageKey and emailId to a queue
+5. A consumer receives the event
+6. Consumer looks for the email data in D1 by the emailID
+7. Consumer donwloads the email from R2
+8. Consumer calculates the hash from the content of the raw email.
+9. Consumer asks drive for a signed URL
+10. Consumer uploads email content to the signed URL
+11. Consumer notifies drive about the file upload finished
+12. Consumer makes a request to email API
+13. Consumer marks the email as 'processed'
+
+
 ## Architecture
 
 **Flow**: `Incoming Email → Webhook → R2 + D1 → Queue → Process → External Drive (TODO)`
@@ -10,7 +26,7 @@ A Cloudflare Worker that receives inbound emails, stores them in R2, and process
 - **R2 Storage**: Temporary storage for raw email files (`emails/{date}/{id}.eml`)
 - **D1 Database**: Tracks status and metadata (from, to, subject, etc.)
 - **Queue**: Async processing with retries and dead letter queue
-- **Consumer** (`src/queue.ts`): Fetches email from R2, ready to send to external storage
+- **Consumer** (`src/queue.ts`): Fetches email from R2, ready to send to external storage. This scales horizontally https://developers.cloudflare.com/queues/configuration/consumer-concurrency/
 
 ## Setup
 
