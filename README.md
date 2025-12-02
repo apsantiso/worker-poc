@@ -59,4 +59,9 @@ npx wrangler dev
 
 - Add authentication (according to the third party email provider)
 - Integrate with Internxt mail's API
-- We need to get the user credentials from somewhere to be able to ask for a drive signed URL. 
+- We need to get the user credentials from somewhere to be able to ask for a drive signed URL.
+
+## Fallbacks
+- What should we do when any of the external request fails in the consumer? Should we make sure they are idempotent? We should not add duplicated emails if one of them fails.
+- How are we going to monitor DLQ? Should we add a consumer to the DLQ or search for a notification system to monitor this?
+
