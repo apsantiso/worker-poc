@@ -1,0 +1,8 @@
+# Webhook Authentication
+WEBHOOK_USERNAME=myuser
+WEBHOOK_PASSWORD=testpass
+
+# Drive API Configuration
+DRIVE_API_URL=http://localhost:6382
+DRIVE_BUCKET_ID=your-bucket-id-here
+DRIVE_AUTH_TOKEN=Basic your-base64-encoded-token-here

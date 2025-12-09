@@ -2,17 +2,14 @@ const QUEUE_NAMES = {
     EMAIL_PROCESS: "email-process-queue",
 } as const;
 
-const DRIVE_CONFIG = {
-    API_URL: "http://localhost:6382",
-    BUCKET_ID: "692d68c06a72483f7b12edd3",
-    AUTH_TOKEN:
-        "Basic bGVjYXRpMTQwNUBkb2NzZnkuY29tOmQyODc2NmEzNzQ5MzhlNTA5ZDI5YzM3NjQzMzY1NGVjMzZhNzgzODE2OTgzZmRlZmQ5OTA0ZDA5NjQ1MmEzMzc=",
-} as const;
 
 type Bindings = {
     EMAIL_STORAGE: R2Bucket;
     DB: D1Database;
     EMAIL_QUEUE: Queue;
+    DRIVE_API_URL: string;
+    DRIVE_BUCKET_ID: string;
+    DRIVE_AUTH_TOKEN: string;
 };
 
 type EmailQueueMessage = {
@@ -34,8 +31,8 @@ type SignedURLData = {
     uuid: string;
 };
 
-async function getSignedURL(fileSize: number): Promise<SignedURLData> {
-    const url = `${DRIVE_CONFIG.API_URL}/v2/buckets/${DRIVE_CONFIG.BUCKET_ID}/files/start?multiparts=1`;
+async function getSignedURL(fileSize: number, env: Bindings): Promise<SignedURLData> {
+    const url = `${env.DRIVE_API_URL}/v2/buckets/${env.DRIVE_BUCKET_ID}/files/start?multiparts=1`;
 
     const response = await fetch(url, {
         method: "POST",
@@ -43,7 +40,7 @@ async function getSignedURL(fileSize: number): Promise<SignedURLData> {
             "Content-Type": "application/json; charset=utf-8",
             "internxt-version": "1.0",
             "internxt-client": "drive-web",
-            Authorization: DRIVE_CONFIG.AUTH_TOKEN,
+            Authorization: env.DRIVE_AUTH_TOKEN,
         },
         body: JSON.stringify({
             uploads: [
@@ -83,9 +80,10 @@ async function calculateSHA256(data: ArrayBuffer): Promise<string> {
 async function finishUpload(
     index: string,
     hash: string,
-    uuid: string
+    uuid: string,
+    env: Bindings
 ): Promise<void> {
-    const url = `${DRIVE_CONFIG.API_URL}/v2/buckets/${DRIVE_CONFIG.BUCKET_ID}/files/finish`;
+    const url = `${env.DRIVE_API_URL}/v2/buckets/${env.DRIVE_BUCKET_ID}/files/finish`;
 
     const response = await fetch(url, {
         method: "POST",
@@ -93,7 +91,7 @@ async function finishUpload(
             "Content-Type": "application/json; charset=utf-8",
             "internxt-version": "1.0",
             "internxt-client": "drive-web",
-            Authorization: DRIVE_CONFIG.AUTH_TOKEN,
+            Authorization: env.DRIVE_AUTH_TOKEN,
         },
         body: JSON.stringify({
             index: index,
@@ -146,7 +144,7 @@ async function processEmail(
 
         // Get signed URL from Drive API
         const fileSize = fileContent.byteLength;
-        const { url: signedURL, uuid } = await getSignedURL(fileSize);
+        const { url: signedURL, uuid } = await getSignedURL(fileSize, env);
 
         // Upload to S3 from memory
         const response = await fetch(signedURL, {
@@ -164,7 +162,7 @@ async function processEmail(
         }
 
         // Notify Drive about completed upload
-        const uploadResult = await finishUpload(fileHash, fileHash, uuid);
+        const uploadResult = await finishUpload(fileHash, fileHash, uuid, env);
         console.log("Finish upload result:", uploadResult);
 
         // TODO: Request to drive gateway to store metadata

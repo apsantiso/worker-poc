@@ -3,6 +3,13 @@
     "name": "worker-poc",
     "compatibility_date": "2025-08-03",
     "main": "./src/index.ts",
+    "vars": {
+        "WEBHOOK_USERNAME": "",
+        "WEBHOOK_PASSWORD": "",
+        "DRIVE_API_URL": "",
+        "DRIVE_BUCKET_ID": "",
+        "DRIVE_AUTH_TOKEN": ""
+    },
     "r2_buckets": [
         {
             "bucket_name": "email-storage",
@@ -20,6 +27,7 @@
             "binding": "DB",
             "database_name": "email-inbox",
             "database_id": "e9133b5a-f172-4dae-b9ab-a4c4068c2e18",
+            "remote": true
         }
     ],
     "queues": {
